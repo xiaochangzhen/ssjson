@@ -338,7 +338,7 @@ ss_obj_t *ss_init(int count)
 
 cJSON *ss_struct_to_json(ss_obj_t *obj)
 {
-	DASSERT(obj && obj->struct_ptr && obj->struct_name && obj->struct_string, printf("%p\n", obj->struct_name);return NULL);
+	DASSERT(obj && obj->struct_ptr && obj->struct_name && obj->struct_string, return NULL);
 	cJSON *root = NULL, *item = NULL, *child = NULL;
 	unsigned char *ptr = NULL;
 	const char *ptr_char = NULL;

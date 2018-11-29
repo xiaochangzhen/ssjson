@@ -117,8 +117,9 @@ typedef struct {
 int test_fbdio_struct_from_my_work(const char *file)
 {
 	ss_obj_t *obj = NULL;
-	cJSON *json, *json2;
+	cJSON *json = NULL, *json2 = NULL;
 	int file_size;
+	int ret = -1;
 	char *buffer = NULL;
 	FIO_Obj_s fio = {};
 
@@ -130,26 +131,43 @@ int test_fbdio_struct_from_my_work(const char *file)
 	test_fbdio_define(obj);
 
 	file_size = test_file_simple_get_size(file);
-	DASSERT(file_size > 0, return -1);
+	DASSERT(file_size > 0, goto __ret);
 	buffer = malloc(file_size);
 	
-	DASSERT(!test_file_simple_read(file, buffer, file_size), return -1);
+	DASSERT(!test_file_simple_read(file, buffer, file_size), goto __ret);
 	json = cJSON_Parse(buffer);
-	DASSERT(json, return -1); 
+	DASSERT(json, goto __ret); 
 
 	/*3*/
-	DASSERT(!ss_entry(obj, &fio, 1), return -1);
+	DASSERT(!ss_entry(obj, &fio, 1), goto __ret);
 	/*4*/
-	DASSERT(!ss_json_to_struct(json, obj), return -1);	
+	DASSERT(!ss_json_to_struct(json, obj), goto __ret);	
 
 	/*3*/
-	DASSERT(!ss_entry(obj, &fio, 1), return -1);
+	DASSERT(!ss_entry(obj, &fio, 1), goto __ret);
 	/*4*/
 	json2 = ss_struct_to_json(obj);	
 
 	printf("%s\n", cJSON_Print(json2));
 
-	return 0;
+	ret = 0;
+
+__ret:
+	if (buffer) {
+		free(buffer);
+	}
+	if (json) {
+		cJSON_Delete(json);
+	}
+	if (json2) {
+		cJSON_Delete(json2);
+	}
+	/*5*/
+	if (obj) {
+		ss_destroy(obj);
+	}
+
+	return ret;
 }
 
 int main(int argc, char *argv[])

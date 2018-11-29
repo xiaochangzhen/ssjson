@@ -97,6 +97,7 @@ int test_check_ssj(void)
 	test_struct_t test2 = {};
 	ss_obj_t *obj = NULL;
 	cJSON *json, *json2;
+	int ret = -1;
 
 	/*1*/
 	obj = ss_init(4);
@@ -106,16 +107,16 @@ int test_check_ssj(void)
 	test_check_define(obj);
 
 	/*3*/
-	DASSERT(!ss_entry(obj, &test, 1), return -1);
+	DASSERT(!ss_entry(obj, &test, 1), goto __ret);
 	/*4*/
 	json = ss_struct_to_json(obj);	
 
 	printf("%s\n", cJSON_Print(json));
 
 	/*3*/
-	DASSERT(!ss_entry(obj, &test2, 1), return -1);
+	DASSERT(!ss_entry(obj, &test2, 1), goto __ret);
 	/*4*/
-	DASSERT(!ss_json_to_struct(json, obj), return -1);
+	DASSERT(!ss_json_to_struct(json, obj), goto __ret);
 
 	/*char* -> char[]*/
 #if 0
@@ -127,18 +128,28 @@ int test_check_ssj(void)
 #endif
 
 	/*3*/
-	DASSERT(!ss_entry(obj, &test2, 1), return -1);
+	DASSERT(!ss_entry(obj, &test2, 1), goto __ret);
 	/*4*/
 	json2 = ss_struct_to_json(obj);	
 
 	printf("%s\n", cJSON_Print(json2));
-	cJSON_Delete(json);
-	cJSON_Delete(json2);
+
+	ret = 0;
+
+__ret:
+	if (json) {
+		cJSON_Delete(json);
+	}
+	if (json2) {
+		cJSON_Delete(json2);
+	}
 
 	/*5*/
-	ss_destroy(obj);
+	if (obj) {
+		ss_destroy(obj);
+	}
 
-	return 0;
+	return ret;
 }
 
 int main(int argc, char *argv[])

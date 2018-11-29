@@ -43,9 +43,15 @@ typedef struct {
 	int arrary_num;
 } ss_obj_t;
 
+#ifndef unlikely
 #define unlikely(x) __builtin_expect((x), 0)
+#endif
+#ifndef ERR
 #define ERR(string,args...) fprintf(stderr,"\033[31m""%s(%d) [%s]: "string"\033[0m",__FILE__,__LINE__,__FUNCTION__,##args)
+#endif
+#ifndef DASSERT
 #define DASSERT(b,action) do {if(unlikely(!(b))){ ERR("debug assertion failure (%s)\n", #b);action;} } while (0)
+#endif
 
 ss_obj_t *ss_init(int count);
 
